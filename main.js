@@ -14,6 +14,36 @@
   var yearEl = document.getElementById("year");
   if (yearEl) yearEl.textContent = String(new Date().getFullYear());
 
+  /* --- Other-work carousel (runs in every motion mode) ---- */
+  (function () {
+    var track = document.getElementById("work-carousel");
+    if (!track) return;
+    var prev = document.querySelector('.carousel__btn[data-dir="-1"]');
+    var next = document.querySelector('.carousel__btn[data-dir="1"]');
+    var controls = document.querySelector(".carousel__controls");
+
+    function step() {
+      var card = track.querySelector(".wcard");
+      return card ? card.getBoundingClientRect().width + 16 : 300;
+    }
+    function scrollByDir(dir) {
+      track.scrollBy({ left: step() * dir, behavior: reduced ? "auto" : "smooth" });
+    }
+    if (prev) prev.addEventListener("click", function () { scrollByDir(-1); });
+    if (next) next.addEventListener("click", function () { scrollByDir(1); });
+
+    function update() {
+      var max = track.scrollWidth - track.clientWidth - 2;
+      var overflowing = track.scrollWidth > track.clientWidth + 4;
+      if (controls) controls.style.display = overflowing ? "" : "none";
+      if (prev) prev.disabled = track.scrollLeft <= 2;
+      if (next) next.disabled = track.scrollLeft >= max;
+    }
+    track.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    update();
+  })();
+
   /* Hard-show: wins even over a transition that never got frames. */
   function settle(el) {
     el.classList.add("is-in");
